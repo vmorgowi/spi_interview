@@ -11,14 +11,14 @@
     "artist": "M. Chen",
     "due_date": "2026-08-15",
     "priority": "Medium",
-    "status": "Not Started"
+    "status": "Complete"
   },
   {
     "name": "Poster Series",
     "artist": "A. Novak",
     "due_date": "2026-09-01",
     "priority": "Low",
-    "status": "Not Started"
+    "status": "Ready"
   },
   {
     "name": "Character Sheet",
@@ -39,7 +39,7 @@
     "artist": "S. Patel",
     "due_date": "2026-08-30",
     "priority": "Medium",
-    "status": "In Progress"
+    "status": "Ready"
   },
   {
     "name": "Character Sheet",

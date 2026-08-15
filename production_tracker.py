@@ -17,6 +17,10 @@ from datetime import date
 from pathlib import Path
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import (
+    QColor,
+    QStandardItem,
+)
 from PyQt5.QtWidgets import (
     QApplication,
     QComboBox,
@@ -78,8 +82,8 @@ class TaskItem:
 def sample_tasks():
     return [
         TaskItem("Album Cover Art", "J. Rivera", date(2026, 8, 20), "High", "In Progress"),
-        TaskItem("Logo Redesign", "M. Chen", date(2026, 8, 15), "Medium", "Not Started"),
-        TaskItem("Poster Series", "A. Novak", date(2026, 9, 1), "Low", "Not Started"),
+        TaskItem("Logo Redesign", "M. Chen", date(2026, 8, 15), "Medium", "Ready"),
+        TaskItem("Poster Series", "A. Novak", date(2026, 9, 1), "Low", "Ready"),
         TaskItem("Character Sheet", "T. Osei", date(2026, 8, 12), "Urgent", "Review"),
         TaskItem("Storyboard Draft", "L. Fontaine", date(2026, 8, 18), "Low", "In Progress"),
         TaskItem("Book Cover", "S. Patel", date(2026, 8, 30), "Medium", "In Progress"),
@@ -110,15 +114,18 @@ def save_tasks(tasks):
 # ---------------------------------------------------------------------------
 
 class TaskItemWidget(QFrame):
-    def __init__(self, task: TaskItem, parent=None):
+    def __init__(self, task: TaskItem, on_edit, parent=None):
+        """on_edit: callback(task) invoked when the user clicks this card."""
         super().__init__(parent)
         self.task = task
+        self.on_edit = on_edit
         self._build_ui()
 
     def _build_ui(self):
         self.setObjectName("TaskCard")
         self.setFrameShape(QFrame.StyledPanel)
         self.setFixedHeight(100)
+        self.setCursor(Qt.PointingHandCursor)
 
         accent = STATUS_COLORS.get(self.task.status, "#9e9e9e")
         self.setStyleSheet(f"""
@@ -126,6 +133,9 @@ class TaskItemWidget(QFrame):
                 background-color: #2b2b2b;
                 border-radius: 8px;
                 border-left: 6px solid {accent};
+            }}
+            #TaskCard:hover {{
+                background-color: #333333;
             }}
             QLabel {{
                 color: #f0f0f0;
@@ -183,13 +193,66 @@ class TaskItemWidget(QFrame):
         mainLayout.addLayout(gLayout)
         mainLayout.addWidget(priority_box)
 
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and self.on_edit:
+            self.on_edit(self.task)
+        super().mousePressEvent(event)
+
+# ---------------------------------------------------------------------------
+# Edit dialog: change a task's Status and add Notes
+# ---------------------------------------------------------------------------
+
+class EditStatusDialog(QDialog):
+    def __init__(self, task: TaskItem, parent=None):
+        super().__init__(parent)
+        self.task = task
+        self.setWindowTitle(f"Edit Task — {task.name}")
+        self.setMinimumWidth(750)
+
+        accent = STATUS_COLORS.get(self.task.status, "#9e9e9e")
+        self.setStyleSheet(f"""
+            QDialog {{ background-color: #2b2b2b; }}
+            QLabel {{ color: #f0f0f0; }}
+            QPushButton {{ background-color: #3a3a3a; color: #f0f0f0; }}
+            QComboBox {{ background-color: #3a3a3a; color: #f0f0f0;
+                        padding: 4px 8px; border-radius: 4px; }}
+            QComboBox QAbstractItemView {{ background-color: #3a3a3a; color: #f0f0f0; }}
+        """)
+
+        layout = QVBoxLayout(self)
+
+        info = QLabel(f"{task.name}  ·  {task.artist}  ·  Due {task.due_date.isoformat()}")
+        layout.addWidget(info)
+
+        layout.addWidget(QLabel("Status:"))
+        self.status_combo = QComboBox()
+
+        # Color the statuses to match the main UI
+        model = self.status_combo.model()
+        for i in range(0, len(STATUSES)):
+            this_status = STATUSES[i]
+            item = QStandardItem(str(this_status))
+            item.setForeground(QColor(STATUS_COLORS[this_status]))
+            model.appendRow(item)
+
+        self.status_combo.setCurrentText(task.status)
+
+        layout.addWidget(self.status_combo)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+    def selected_status(self):
+        return self.status_combo.currentText()
 
 # ---------------------------------------------------------------------------
 # Main window
 # ---------------------------------------------------------------------------
 
 class MainWindow(QMainWindow):
-    STATUS_ORDER = {"Ready": 0, "In Progress": 1, "Review": 2, "Complete": 2}
+    STATUS_ORDER = {"Ready": 0, "In Progress": 1, "Review": 2, "Complete": 3}
     PRIORITY_ORDER = {"Urgent": 0, "High": 1, "Medium": 2, "Low": 2}
 
     def __init__(self):
@@ -237,10 +300,10 @@ class MainWindow(QMainWindow):
         scroll.setWidget(self.list_container)
         outer_layout.addWidget(scroll)
 
-        self.render_tasks(self.tasks)
+        self.render_tasks()
 
     def on_sort_changed(self, mode: str):
-
+        sorted_tasks = self.tasks
         match mode:
             case "Due Date":
                 sorted_tasks = sorted(self.tasks, key=lambda t: t.due_date)
@@ -256,9 +319,10 @@ class MainWindow(QMainWindow):
                 # this is an error
                 printf("ERROR: No sort specified")
 
-        self.render_tasks(sorted_tasks)
+        self.tasks = sorted_tasks
+        self.render_tasks() # re-render after sort
 
-    def render_tasks(self, tasks):
+    def render_tasks(self):
         # Clear existing cards (leave the trailing stretch in place)
         while self.list_layout.count() > 1:
             item = self.list_layout.takeAt(0)
@@ -266,10 +330,21 @@ class MainWindow(QMainWindow):
             if widget:
                 widget.deleteLater()
 
-        for task in tasks:
-            card = TaskItemWidget(task)
+        for task in self.tasks:
+            card = TaskItemWidget(task, on_edit=self.open_edit_dialog)
             self.list_layout.insertWidget(self.list_layout.count() - 1, card)
 
+    def open_edit_dialog(self, task: TaskItem):
+        dialog = EditStatusDialog(task, parent=self)
+        if dialog.exec_() == QDialog.Accepted:
+            new_status = dialog.selected_status()
+            if new_status != task.status:
+                task.status = new_status
+                try:
+                    save_tasks(self.tasks)
+                except OSError as e:
+                    QMessageBox.warning(self, "Save failed", f"Could not save tasks.json:\n{e}")
+                self.render_tasks()
 
 def main():
     app = QApplication(sys.argv)

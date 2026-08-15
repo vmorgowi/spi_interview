@@ -47,3 +47,26 @@ That will take a while... but it will mean I understand those changes once I'm d
 Raw generated code again had styling issues on the new edit dialog, so I'll need to fix those too.
 
 I wonder if I should change the way the Statuses are kept track of. Claude loves its arrays of strings. In theory, they should actually be an enum. Or possibly a struct that keeps track of the associated color too. But, is it worth the time taken to neaten up the code to do that? Probably not, as much as it pains me to look at it...
+
+### 8:30pm - Adventures in Editing
+
+Having the combo box on the edit dialog reflect the same colors as on the rest of the UI is another unnecessary flourish, but it seems like a good thing to try to make sure I understand how these style sheets are working.
+
+Whew, good thing I thought to test sorting after I integrated the edit dialog. Discovered a bug where "Review" and "Complete" were both set to the same order value! Fixed now.
+
+I want to adjust the styling on the edit dialog since the OK/Cancel buttons are so hard to read. Which brings up another code cleanliness issue - ideally there should be one style sheet or at the very least a main palette the others could grab colors from to keep things consistent... 
+
+### 9:00pm Colors and Comboboxes
+
+Finally managed to change the individual colors in the drop down of the combo box. But the main text doesn't update afterwards. Ah well. I feel like I learned something while doing this, at least.
+
+And with that, ready for the second check in. What major pieces remain?
+>Limiting the display to only show tasks belonging to a specific artist
+>Adding the Project and Shot fields
+>Adding a Notes field
+>Adding a way for the artist to edit Notes
+
+The Project and Shot fields will be straightforward to add. I'll do that manually myself. For limiting the display, let's see if Claude can successfully add a search/filter bar.
+
+
+
