@@ -1,0 +1,65 @@
+[
+  {
+    "name": "Album Cover Art",
+    "artist": "J. Rivera",
+    "due_date": "2026-08-20",
+    "priority": "High",
+    "status": "In Progress"
+  },
+  {
+    "name": "Logo Redesign",
+    "artist": "M. Chen",
+    "due_date": "2026-08-15",
+    "priority": "Medium",
+    "status": "Not Started"
+  },
+  {
+    "name": "Poster Series",
+    "artist": "A. Novak",
+    "due_date": "2026-09-01",
+    "priority": "Low",
+    "status": "Not Started"
+  },
+  {
+    "name": "Character Sheet",
+    "artist": "T. Osei",
+    "due_date": "2026-08-12",
+    "priority": "Urgent",
+    "status": "Review"
+  },
+  {
+    "name": "Storyboard Draft",
+    "artist": "L. Fontaine",
+    "due_date": "2026-08-18",
+    "priority": "Low",
+    "status": "In Progress"
+  },
+  {
+    "name": "Book Cover",
+    "artist": "S. Patel",
+    "due_date": "2026-08-30",
+    "priority": "Medium",
+    "status": "In Progress"
+  },
+  {
+    "name": "Character Sheet",
+    "artist": "T. Osei",
+    "due_date": "2026-07-12",
+    "priority": "High",
+    "status": "Complete"
+  },
+  {
+    "name": "Storyboard Draft",
+    "artist": "L. Fontaine",
+    "due_date": "2026-07-18",
+    "priority": "Low",
+    "status": "Review"
+  },
+  {
+    "name": "Book Cover",
+    "artist": "S. Patel",
+    "due_date": "2026-07-30",
+    "priority": "Urgent",
+    "status": "Complete"
+  }
+]

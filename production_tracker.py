@@ -10,19 +10,24 @@ Run:
     python production_tracker.py
 """
 
+import json
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from datetime import date
+from pathlib import Path
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QApplication,
     QComboBox,
+    QDialog,
+    QDialogButtonBox,
     QFrame,
     QGridLayout,
     QHBoxLayout,
     QLabel,
     QMainWindow,
+    QMessageBox,
     QScrollArea,
     QVBoxLayout,
     QWidget,
@@ -32,15 +37,9 @@ from PyQt5.QtWidgets import (
 # ---------------------------------------------------------------------------
 # Data model
 # ---------------------------------------------------------------------------
+STATUSES = ["Ready", "In Progress", "Review", "Complete"]
 
-@dataclass
-class TaskItem:
-    name: str
-    artist: str
-    due_date: date
-    priority: str # "Urgent" | "High" | "Medium" | "Low"
-    status: str  # "Ready" | "In Progress" | "Review" | "Complete"
-
+TASKS_FILE = Path(__file__).with_name("tasks.json")
 
 # Color used for the left accent bar / border, keyed by status
 STATUS_COLORS = {
@@ -50,15 +49,32 @@ STATUS_COLORS = {
     "Complete": "#4caf50", # green
 }
 
-# # Color used for priority display
-# STATUS_COLORS = {
-#     "Low": "#9e9e9e", # grey
-#     "Medium": "#f5a623", # yellow
-#     "High": "#f5a623", # orange
-#     "Urgent": "#4caf50", # red
-# }
+@dataclass
+class TaskItem:
+    name: str
+    artist: str
+    due_date: date
+    priority: str # "Urgent" | "High" | "Medium" | "Low"
+    status: str  # "Ready" | "In Progress" | "Review" | "Complete"
 
+    def to_dict(self):
+        d = asdict(self)
+        d["due_date"] = self.due_date.isoformat()
+        return d
 
+    @staticmethod
+    def from_dict(d):
+        return TaskItem(
+            name=d["name"],
+            artist=d["artist"],
+            due_date=date.fromisoformat(d["due_date"]),
+            priority=d["priority"],
+            status=d["status"],
+        )
+
+# ---------------------------------------------------------------------------
+# Persistence
+# ---------------------------------------------------------------------------
 def sample_tasks():
     return [
         TaskItem("Album Cover Art", "J. Rivera", date(2026, 8, 20), "High", "In Progress"),
@@ -72,6 +88,22 @@ def sample_tasks():
         TaskItem("Book Cover", "S. Patel", date(2026, 7, 30), "Urgent", "Complete"),
     ]
 
+def load_tasks():
+    """Load tasks from TASKS_FILE. If it doesn't exist (or is invalid),
+    fall back to sample data and write it out so the file exists going forward."""
+    if TASKS_FILE.exists():
+        try:
+            raw = json.loads(TASKS_FILE.read_text())
+            return [TaskItem.from_dict(d) for d in raw]
+        except (json.JSONDecodeError, KeyError, ValueError):
+            pass  # fall through to sample data on corrupt/invalid file
+    tasks = sample_tasks()
+    save_tasks(tasks)
+    return tasks
+
+
+def save_tasks(tasks):
+    TASKS_FILE.write_text(json.dumps([t.to_dict() for t in tasks], indent=2))
 
 # ---------------------------------------------------------------------------
 # TaskItem widget: a rectangle showing Name, Artist, Due Date, Status
@@ -166,7 +198,7 @@ class MainWindow(QMainWindow):
         self.resize(1200, 1200)
         self.setStyleSheet("background-color: #1e1e1e;")
 
-        self.tasks = sample_tasks()
+        self.tasks = load_tasks()
 
         central = QWidget()
         self.setCentralWidget(central)
