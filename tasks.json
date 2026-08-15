@@ -6,22 +6,12 @@
     "shot": "SC010_010",
     "due_date": "2026-08-18",
     "priority": "High",
-    "status": "Review",
+    "status": "In Progress",
     "notes": "Blocking camera moves for the opening flyover; needs approval before animation starts."
   },
   {
-    "name": "Rough Lighting Pass",
-    "artist": "Maria Chen",
-    "project": "Skyfall Chronicles",
-    "shot": "SC010_010",
-    "due_date": "2026-08-28",
-    "priority": "High",
-    "status": "In Progress",
-    "notes": ""
-  },
-  {
     "name": "Character Rig Fix",
-    "artist": "Devon Walsh",
+    "artist": "Jamal Brooks",
     "project": "Skyfall Chronicles",
     "shot": "SC014_002",
     "due_date": "2026-08-15",
@@ -31,23 +21,23 @@
   },
   {
     "name": "Lighting Pass v2",
-    "artist": "Priya Nair",
+    "artist": "Fatima Al-Sayed",
     "project": "Oceanview",
     "shot": "SC022_005",
     "due_date": "2026-08-20",
     "priority": "Medium",
     "status": "Review",
-    "notes": "Client requested warmer color temperature for sunset beach scene."
+    "notes": "Client requested warmer color temperature — más cálido para la puesta de sol 🌅"
   },
   {
     "name": "FX Water Simulation",
-    "artist": "Tom\u00c3\u00a1s Ferreira",
+    "artist": "Tomás Ferreira",
     "project": "Oceanview",
     "shot": "SC030_012",
     "due_date": "2026-08-22",
     "priority": "High",
     "status": "In Progress",
-    "notes": "Sim running slow, may need to reduce resolution for splash detail."
+    "notes": ""
   },
   {
     "name": "Compositing Final",
@@ -57,7 +47,7 @@
     "due_date": "2026-08-14",
     "priority": "Urgent",
     "status": "Complete",
-    "notes": "Delivered to editorial, awaiting final sign-off."
+    "notes": "editorial に納品済み、最終承認待ち"
   },
   {
     "name": "Storyboard Revisions",
@@ -71,23 +61,23 @@
   },
   {
     "name": "Texture Painting - Hero Prop",
-    "artist": "Elena Kovacs",
+    "artist": "Maria Chen",
     "project": "Skyfall Chronicles",
     "shot": "SC012_008",
     "due_date": "2026-08-19",
     "priority": "Medium",
     "status": "In Progress",
-    "notes": "Sword texture needs additional wear detail per art department."
+    "notes": ""
   },
   {
     "name": "Crowd Simulation Setup",
-    "artist": "Noah Kim",
+    "artist": "Tomás Ferreira",
     "project": "Oceanview",
     "shot": "SC040_003",
     "due_date": "2026-08-28",
     "priority": "Medium",
     "status": "Ready",
-    "notes": "Background market scene, approx 200 agents required."
+    "notes": "Background market scene, approx 200 agents required — façade detail needs review."
   },
   {
     "name": "Sound Design Pass",
@@ -101,32 +91,112 @@
   },
   {
     "name": "Match Move / Tracking",
-    "artist": "Lucas Bianchi",
+    "artist": "Aiko Tanaka",
     "project": "Skyfall Chronicles",
     "shot": "SC018_011",
     "due_date": "2026-08-16",
     "priority": "Urgent",
     "status": "In Progress",
-    "notes": "Handheld footage causing jitter, retracking with additional markers."
+    "notes": "手持ちカメラのブレでジッター発生、マーカー追加中"
   },
   {
     "name": "Color Grading Draft",
-    "artist": "Sophie Dubois",
+    "artist": "Maria Chen",
     "project": "Oceanview",
     "shot": "SC050_001",
     "due_date": "2026-08-30",
     "priority": "Low",
     "status": "Ready",
-    "notes": "First pass grade for full sequence, style reference attached."
+    "notes": ""
   },
   {
     "name": "Rig Weight Painting",
-    "artist": "Devon Walsh",
+    "artist": "Jamal Brooks",
     "project": "Nightshade",
     "shot": "SC021_006",
     "due_date": "2026-08-21",
     "priority": "Medium",
     "status": "Complete",
     "notes": "Approved by rigging lead, ready for animation handoff."
+  },
+  {
+    "name": "Environment Concept Pass",
+    "artist": "Tomás Ferreira",
+    "project": "Nightshade",
+    "shot": "SC002_000",
+    "due_date": "2026-09-02",
+    "priority": "Low",
+    "status": "In Progress",
+    "notes": "Explorando paleta más fría para la escena del páramo — référence jointe."
+  },
+  {
+    "name": "Facial Blendshape Cleanup",
+    "artist": "Fatima Al-Sayed",
+    "project": "Skyfall Chronicles",
+    "shot": "SC016_009",
+    "due_date": "2026-08-24",
+    "priority": "High",
+    "status": "Review",
+    "notes": ""
+  },
+  {
+    "name": "Smoke & Fire FX",
+    "artist": "Aiko Tanaka",
+    "project": "Oceanview",
+    "shot": "SC033_007",
+    "due_date": "2026-08-27",
+    "priority": "Urgent",
+    "status": "In Progress",
+    "notes": "爆発シーンのタイミングを監督と再確認する必要あり"
+  },
+  {
+    "name": "Set Dressing Pass",
+    "artist": "Maria Chen",
+    "project": "Nightshade",
+    "shot": "SC009_003",
+    "due_date": "2026-09-05",
+    "priority": "Low",
+    "status": "Ready",
+    "notes": "Café interior needs additional props per art dept — see réf board."
+  },
+  {
+    "name": "Cloth Simulation Pass",
+    "artist": "Jamal Brooks",
+    "project": "Oceanview",
+    "shot": "SC044_002",
+    "due_date": "2026-08-26",
+    "priority": "Medium",
+    "status": "In Progress",
+    "notes": ""
+  },
+  {
+    "name": "Audio Mix Review",
+    "artist": "Fatima Al-Sayed",
+    "project": "Skyfall Chronicles",
+    "shot": "SC019_005",
+    "due_date": "2026-08-29",
+    "priority": "High",
+    "status": "Complete",
+    "notes": "承認済み、次のシーケンスへ進行可能"
+  },
+  {
+    "name": "Camera Blocking",
+    "artist": "Tomás Ferreira",
+    "project": "Skyfall Chronicles",
+    "shot": "SC003_001",
+    "due_date": "2026-08-13",
+    "priority": "Urgent",
+    "status": "Complete",
+    "notes": "Aprobado por el director — sin cambios adicionales."
+  },
+  {
+    "name": "Matte Painting - Skyline",
+    "artist": "Aiko Tanaka",
+    "project": "Nightshade",
+    "shot": "SC027_004",
+    "due_date": "2026-09-01",
+    "priority": "Medium",
+    "status": "Ready",
+    "notes": ""
   }
 ]

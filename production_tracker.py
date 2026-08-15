@@ -155,33 +155,45 @@ def load_tasks():
     fall back to sample data and write it out so the file exists going forward."""
     if TASKS_FILE.exists():
         try:
-            raw = json.loads(TASKS_FILE.read_text())
+            # Explicit utf-8 so non-ASCII names/artists/notes (accents, CJK,
+            # emoji, etc.) read correctly regardless of the OS's default
+            # locale encoding (e.g. Windows often defaults to cp1252).
+            raw = json.loads(TASKS_FILE.read_text(encoding="utf-8"))
             return [TaskItem.from_dict(d) for d in raw]
-        except (json.JSONDecodeError, KeyError, ValueError):
-            pass  # fall through to sample data on corrupt/invalid file
+        except (json.JSONDecodeError, KeyError, ValueError, UnicodeDecodeError):
+            pass  # fall through to sample data on corrupt/invalid/mis-encoded file
     tasks = sample_tasks()
     save_tasks(tasks)
     return tasks
 
 def save_tasks(tasks):
-    TASKS_FILE.write_text(json.dumps([t.to_dict() for t in tasks], indent=2))
+    # ensure_ascii=False writes real UTF-8 characters (é, 日本語, emoji, ...)
+    # into the file instead of \uXXXX escapes, so tasks.json stays human
+    # readable and edits made outside the app round-trip correctly.
+    TASKS_FILE.write_text(
+        json.dumps([t.to_dict() for t in tasks], indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
 
 def load_settings():
     """Load persisted UI state (current sort mode + artist filter).
     Falls back to defaults if the file is missing or invalid."""
     if SETTINGS_FILE.exists():
         try:
-            raw = json.loads(SETTINGS_FILE.read_text())
+            raw = json.loads(SETTINGS_FILE.read_text(encoding="utf-8"))
             return {
                 "sort": raw.get("sort", DEFAULT_SETTINGS["sort"]),
                 "artist_filter": raw.get("artist_filter", DEFAULT_SETTINGS["artist_filter"]),
             }
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, UnicodeDecodeError):
             pass
     return dict(DEFAULT_SETTINGS)
 
 def save_settings(sort: str, artist_filter: str):
-    SETTINGS_FILE.write_text(json.dumps({"sort": sort, "artist_filter": artist_filter}, indent=2))
+    SETTINGS_FILE.write_text(
+        json.dumps({"sort": sort, "artist_filter": artist_filter}, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
 
 # ---------------------------------------------------------------------------
 # TaskItem widget: a rectangle displaying information about a TaskItem
@@ -226,6 +238,11 @@ class TaskItemWidget(QFrame):
             QLabel[role="status"] {{
                 font-weight: 600;
                 color: {accent};
+            }}
+            QLabel[role="notes"] {{
+                color: #9a9a9a;
+                font-size: 8pt;
+                font-style: italic;
             }}
         """)
 
