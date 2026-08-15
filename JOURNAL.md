@@ -90,8 +90,18 @@ Artist filter is now working, but I need better sample data to test it. Would al
 
 I also noticed an unfortunate bug - the drop down for artists chokes and fails to display the name of an artist with a non-ASCII character in his name. That's important to fix - it would be very disrespectful to an artist if their name could not display correctly!
 
-### 11:30 - Bug Fixes
+### 11:30pm - Bug Fixes
 
 Had Claude fix the bug with the non-ASCII characters, and generate more samples with said characters while I was at it. Also tried having it fix the layout issues with the Priority field, but it fell on its face - the background extends but there is nothing in the box.
 
 In hindsight, it would have been better to define all fields at the start rather than attempting to add more as I went along. 
+
+### 12:00pm - Code Complete
+
+Fixed the layout bug myself. I'm over time, so I need to call this complete. 
+
+If I had more time, then there are so many things it would have been nice to add. More/better ways for the user to sort and filter the TaskItems chief among them. Something like a checkbox to filter which Statuses appear, something to check and display overdue Tasks, etc.
+
+Wish I had a chance to do more testing so I'd be more confident it is stable and robust too.
+
+Now for the README and demo video.

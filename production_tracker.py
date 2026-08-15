@@ -223,6 +223,10 @@ class TaskItemWidget(QFrame):
             #TaskCard:hover {{
                 background-color: #333333;
             }}
+            #GridContainer {{
+                background-color: #2b2b2b;
+                border-radius: 8px;
+            }}
             QLabel {{
                 color: #f0f0f0;
                 border: none;
@@ -246,11 +250,14 @@ class TaskItemWidget(QFrame):
             }}
         """)
 
-        mainLayout = QHBoxLayout(self)
-        mainLayout.setContentsMargins(0, 0, 0, 0)
+        outer = QHBoxLayout(self)
+        outer.setContentsMargins(16, 8, 16, 8)
+        outer.setSpacing(12)
 
-        gLayout = QGridLayout()
-        gLayout.setContentsMargins(16, 8, 16, 8)
+        grid_container = QWidget()
+        grid_container.setObjectName("GridContainer")
+        gLayout = QGridLayout(grid_container)
+        gLayout.setContentsMargins(0, 0, 0, 0)
 
         name_label = QLabel(self.task.name)
         name_label.setProperty("role", "name")
@@ -269,15 +276,6 @@ class TaskItemWidget(QFrame):
         status_label.setTextFormat(Qt.PlainText)
         status_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
-        priority_box = QWidget()
-        priority_box_layout = QVBoxLayout()
-        priority_box.setLayout(priority_box_layout)
-        priority_box.setFixedWidth(120)
-
-        priority_label = QLabel(self.task.priority)
-        priority_label.setProperty("role", "sub")
-        priority_box_layout.addWidget(priority_label)
-
         gLayout.addWidget(name_label, 0, 0)
         gLayout.addWidget(artist_label, 1, 0)
         gLayout.addWidget(due_label, 1, 1)
@@ -294,8 +292,19 @@ class TaskItemWidget(QFrame):
             notes_label.setWordWrap(True)
             gLayout.addWidget(notes_label, 2, 0, 1, 2)
 
-        mainLayout.addLayout(gLayout)
-        mainLayout.addWidget(priority_box)
+        outer.addWidget(grid_container, stretch=1)
+
+        priority_box = QWidget()
+        priority_box_layout = QVBoxLayout()
+        priority_box.setLayout(priority_box_layout)
+        priority_box.setFixedWidth(120)
+
+        priority_label = QLabel(self.task.priority)
+        priority_label.setProperty("role", "sub")
+        priority_label.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        priority_box_layout.addWidget(priority_label)
+
+        outer.addWidget(priority_box)
 
     @staticmethod
     def _display_notes(notes: str, max_chars: int = 120) -> str:
