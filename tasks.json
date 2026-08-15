@@ -1,65 +1,122 @@
 [
   {
-    "name": "Album Cover Art",
-    "artist": "J. Rivera",
-    "due_date": "2026-08-20",
-    "priority": "High",
-    "status": "In Progress"
-  },
-  {
-    "name": "Logo Redesign",
-    "artist": "M. Chen",
-    "due_date": "2026-08-15",
-    "priority": "Medium",
-    "status": "Complete"
-  },
-  {
-    "name": "Poster Series",
-    "artist": "A. Novak",
-    "due_date": "2026-09-01",
-    "priority": "Low",
-    "status": "Ready"
-  },
-  {
-    "name": "Character Sheet",
-    "artist": "T. Osei",
-    "due_date": "2026-08-12",
-    "priority": "Urgent",
-    "status": "Review"
-  },
-  {
-    "name": "Storyboard Draft",
-    "artist": "L. Fontaine",
+    "name": "Rough Layout Pass",
+    "artist": "Maria Chen",
+    "project": "Skyfall Chronicles",
+    "shot": "SC010_010",
     "due_date": "2026-08-18",
-    "priority": "Low",
-    "status": "In Progress"
-  },
-  {
-    "name": "Book Cover",
-    "artist": "S. Patel",
-    "due_date": "2026-08-30",
-    "priority": "Medium",
-    "status": "Ready"
-  },
-  {
-    "name": "Character Sheet",
-    "artist": "T. Osei",
-    "due_date": "2026-07-12",
     "priority": "High",
-    "status": "Complete"
+    "status": "Review",
+    "notes": "Blocking camera moves for the opening flyover; needs approval before animation starts. Waiting on review from Devon."
   },
   {
-    "name": "Storyboard Draft",
-    "artist": "L. Fontaine",
-    "due_date": "2026-07-18",
-    "priority": "Low",
-    "status": "Review"
-  },
-  {
-    "name": "Book Cover",
-    "artist": "S. Patel",
-    "due_date": "2026-07-30",
+    "name": "Character Rig Fix",
+    "artist": "Devon Walsh",
+    "project": "Skyfall Chronicles",
+    "shot": "SC014_002",
+    "due_date": "2026-08-15",
     "priority": "Urgent",
-    "status": "Complete"
+    "status": "Ready",
+    "notes": "Shoulder deformation breaking on extreme poses, blocking anim team."
+  },
+  {
+    "name": "Lighting Pass v2",
+    "artist": "Priya Nair",
+    "project": "Oceanview",
+    "shot": "SC022_005",
+    "due_date": "2026-08-20",
+    "priority": "Medium",
+    "status": "Review",
+    "notes": "Client requested warmer color temperature for sunset beach scene."
+  },
+  {
+    "name": "FX Water Simulation",
+    "artist": "Tom\u00c3\u00a1s Ferreira",
+    "project": "Oceanview",
+    "shot": "SC030_012",
+    "due_date": "2026-08-22",
+    "priority": "High",
+    "status": "In Progress",
+    "notes": "Sim running slow, may need to reduce resolution for splash detail."
+  },
+  {
+    "name": "Compositing Final",
+    "artist": "Aiko Tanaka",
+    "project": "Nightshade",
+    "shot": "SC005_001",
+    "due_date": "2026-08-14",
+    "priority": "Urgent",
+    "status": "Complete",
+    "notes": "Delivered to editorial, awaiting final sign-off."
+  },
+  {
+    "name": "Storyboard Revisions",
+    "artist": "Jamal Brooks",
+    "project": "Nightshade",
+    "shot": "SC008_000",
+    "due_date": "2026-08-25",
+    "priority": "Low",
+    "status": "Ready",
+    "notes": "Director notes attached in production tracker."
+  },
+  {
+    "name": "Texture Painting - Hero Prop",
+    "artist": "Elena Kovacs",
+    "project": "Skyfall Chronicles",
+    "shot": "SC012_008",
+    "due_date": "2026-08-19",
+    "priority": "Medium",
+    "status": "In Progress",
+    "notes": "Sword texture needs additional wear detail per art department."
+  },
+  {
+    "name": "Crowd Simulation Setup",
+    "artist": "Noah Kim",
+    "project": "Oceanview",
+    "shot": "SC040_003",
+    "due_date": "2026-08-28",
+    "priority": "Medium",
+    "status": "Ready",
+    "notes": "Background market scene, approx 200 agents required."
+  },
+  {
+    "name": "Sound Design Pass",
+    "artist": "Fatima Al-Sayed",
+    "project": "Nightshade",
+    "shot": "SC015_004",
+    "due_date": "2026-08-17",
+    "priority": "High",
+    "status": "Review",
+    "notes": "Ambient forest track needs to sync with wind FX shot."
+  },
+  {
+    "name": "Match Move / Tracking",
+    "artist": "Lucas Bianchi",
+    "project": "Skyfall Chronicles",
+    "shot": "SC018_011",
+    "due_date": "2026-08-16",
+    "priority": "Urgent",
+    "status": "In Progress",
+    "notes": "Handheld footage causing jitter, retracking with additional markers."
+  },
+  {
+    "name": "Color Grading Draft",
+    "artist": "Sophie Dubois",
+    "project": "Oceanview",
+    "shot": "SC050_001",
+    "due_date": "2026-08-30",
+    "priority": "Low",
+    "status": "Ready",
+    "notes": "First pass grade for full sequence, style reference attached."
+  },
+  {
+    "name": "Rig Weight Painting",
+    "artist": "Devon Walsh",
+    "project": "Nightshade",
+    "shot": "SC021_006",
+    "due_date": "2026-08-21",
+    "priority": "Medium",
+    "status": "Complete",
+    "notes": "Approved by rigging lead, ready for animation handoff."
   }
 ]

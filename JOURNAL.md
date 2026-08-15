@@ -15,7 +15,7 @@ I will need to explain my code at a follow up interview, so using genAI for comp
 
 ### 6:40pm - Basic Environment Up
 
-Got everything set up for a basic dev environment and made an account for free Claude.
+Got everything set up for a basic dev environment and made an account for free Claude. I'll try using the Sonnet 5 Medium setting.
 
 As expected, Claude added a lot of unasked for details. It generated sample data and quite a lot of styling for the QWidgets for the tasks. But this may be a good starting point; while the further suggestions of Click-to-edit and the ability sort ascending/descending are useful, I want to be sure I fully understand the code it gave me before I ask for bells and whistles.
 
@@ -54,11 +54,11 @@ Having the combo box on the edit dialog reflect the same colors as on the rest o
 
 Whew, good thing I thought to test sorting after I integrated the edit dialog. Discovered a bug where "Review" and "Complete" were both set to the same order value! Fixed now.
 
-I want to adjust the styling on the edit dialog since the OK/Cancel buttons are so hard to read. Which brings up another code cleanliness issue - ideally there should be one style sheet or at the very least a main palette the others could grab colors from to keep things consistent... 
+I want to adjust the styling on the edit dialog since the OK/Cancel buttons are so hard to read. Which brings up another code cleanliness issue - ideally there should be one style sheet or at the very least a main palette the others could grab colors from to keep things consistent... yet another thing I would do if I had time.
 
 ### 9:00pm Colors and Comboboxes
 
-Finally managed to change the individual colors in the drop down of the combo box. But the main text doesn't update afterwards. Ah well. I feel like I learned something while doing this, at least.
+Finally managed to change the individual colors in the drop down of the combo box. But the color of the non-drop down part doesn't update afterwards. Ah well. I feel like I learned something while doing this, at least.
 
 And with that, ready for the second check in. What major pieces remain?
 >Limiting the display to only show tasks belonging to a specific artist
@@ -68,5 +68,19 @@ And with that, ready for the second check in. What major pieces remain?
 
 The Project and Shot fields will be straightforward to add. I'll do that manually myself. For limiting the display, let's see if Claude can successfully add a search/filter bar.
 
+### 9:30pm - More AI integration
 
+Realized that once I added the Project and Shot fields, I'd have to update all that sample data. Used a separate session of Claude to generate the new JSON instead. Following a predictable pattern is what LLMs are best at, after all.
+
+I'll do a few fallback samples by hand just to have a clear example in the program itself.
+
+Also had Claude add a notes field on the version it's working with. I want to test to see if it can sanitize the input. Theoretically, allowing an artist to stylize the notes might be interesting. But given that "error and failure handling" and "edge cases" are part of the judgement criteria, better to play it boring but safer.
+
+### 10:00pm - Not Done Yet
+
+The editable, sanitized Notes field is ready for check in, at least. Unfortunately, I haven't had time to thoroughly test its output. Claude wants me to add more bells and whistles like showing the full notes text on hover. Sounds lovely, but...
+
+Given that I started at 6pm, this should be the cut off, but I haven't yet met the minimum requirements. 
+
+The main piece remaining is being able to limit the display to just showing tasks for a specific artist. Once I have that, I feel it will be minimally functional. I'll see what I can do in the next hour, and probably call it after that.
 

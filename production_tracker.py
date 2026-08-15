@@ -1,9 +1,9 @@
 """
 Task List Prototype
 --------------------
-A PyQt5 desktop app that displays a list of TaskItems (Name, Artist, Due Date,
-Status) as rectangular cards inside a MainWindow, with a drop-down menu to
-sort by Due Date or Status.
+A PyQt5 desktop app that displays a list of TaskItems as rectangular cards 
+inside a MainWindow, with a drop-down menu to sort by Due Date, Status, or
+Priority.
 
 Run:
     pip install PyQt5
@@ -11,6 +11,7 @@ Run:
 """
 
 import json
+import re
 import sys
 from dataclasses import dataclass, asdict
 from datetime import date
@@ -33,6 +34,7 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QScrollArea,
+    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
@@ -42,7 +44,7 @@ from PyQt5.QtWidgets import (
 # Data model
 # ---------------------------------------------------------------------------
 STATUSES = ["Ready", "In Progress", "Review", "Complete"]
-
+MAX_NOTES_LENGTH = 500
 TASKS_FILE = Path(__file__).with_name("tasks.json")
 
 # Color used for the left accent bar / border, keyed by status
@@ -53,13 +55,48 @@ STATUS_COLORS = {
     "Complete": "#4caf50", # green
 }
 
+def sanitize_notes(raw: str) -> str:
+    """Clean up freeform notes text before it's persisted or displayed.
+
+    - Normalizes line endings
+    - Strips control characters (keeps newline/tab)
+    - Collapses runs of 3+ blank lines down to one blank line
+    - Trims trailing whitespace on each line and overall
+    - Caps total length to MAX_NOTES_LENGTH
+    """
+    if not raw:
+        return ""
+
+    text = raw.replace("\r\n", "\n").replace("\r", "\n")
+
+    # Drop control characters except newline (\n) and tab (\t)
+    text = "".join(
+        ch for ch in text
+        if ch in ("\n", "\t") or (ord(ch) >= 32 and ord(ch) != 127)
+    )
+
+    # Collapse excessive blank lines
+    text = re.sub(r"\n{3,}", "\n\n", text)
+
+    # Trim trailing whitespace per line, then overall
+    text = "\n".join(line.rstrip() for line in text.split("\n"))
+    text = text.strip()
+
+    if len(text) > MAX_NOTES_LENGTH:
+        text = text[:MAX_NOTES_LENGTH].rstrip() + "…"
+
+    return text
+
 @dataclass
 class TaskItem:
     name: str
     artist: str
+    project: str
+    shot: str
     due_date: date
     priority: str # "Urgent" | "High" | "Medium" | "Low"
     status: str  # "Ready" | "In Progress" | "Review" | "Complete"
+    notes: str = ""
 
     def to_dict(self):
         d = asdict(self)
@@ -71,9 +108,12 @@ class TaskItem:
         return TaskItem(
             name=d["name"],
             artist=d["artist"],
+            project=d["project"],
+            shot=d["shot"],
             due_date=date.fromisoformat(d["due_date"]),
             priority=d["priority"],
             status=d["status"],
+            notes=sanitize_notes(d.get("notes", "")),
         )
 
 # ---------------------------------------------------------------------------
@@ -81,15 +121,30 @@ class TaskItem:
 # ---------------------------------------------------------------------------
 def sample_tasks():
     return [
-        TaskItem("Album Cover Art", "J. Rivera", date(2026, 8, 20), "High", "In Progress"),
-        TaskItem("Logo Redesign", "M. Chen", date(2026, 8, 15), "Medium", "Ready"),
-        TaskItem("Poster Series", "A. Novak", date(2026, 9, 1), "Low", "Ready"),
-        TaskItem("Character Sheet", "T. Osei", date(2026, 8, 12), "Urgent", "Review"),
-        TaskItem("Storyboard Draft", "L. Fontaine", date(2026, 8, 18), "Low", "In Progress"),
-        TaskItem("Book Cover", "S. Patel", date(2026, 8, 30), "Medium", "In Progress"),
-        TaskItem("Character Sheet", "T. Osei", date(2026, 7, 12), "High", "Complete"),
-        TaskItem("Storyboard Draft", "L. Fontaine", date(2026, 7, 18), "Low", "Review"),
-        TaskItem("Book Cover", "S. Patel", date(2026, 7, 30), "Urgent", "Complete"),
+        TaskItem("Album Cover Art", \
+            "J. Rivera", \
+            "Skyfall Chronicles", \
+            "SC010_010", \
+            date(2026, 8, 20), \
+            "High", \
+            "In Progress",
+            "notes notes notes"),
+        TaskItem("Logo Redesign", \
+            "M. Chen", \
+            "Oceanview", \
+            "SC022_005", \
+            date(2026, 8, 20), \
+            "Low", \
+            "Ready",
+            "a b c d e f g"),
+        TaskItem("Poster Series", \
+            "A. Novak", \
+            "Oceanview", \
+            "SC030_012", \
+            date(2026, 9, 1), \
+            "Urgent", \
+            "Review",
+            ""),
     ]
 
 def load_tasks():
@@ -105,12 +160,13 @@ def load_tasks():
     save_tasks(tasks)
     return tasks
 
-
 def save_tasks(tasks):
     TASKS_FILE.write_text(json.dumps([t.to_dict() for t in tasks], indent=2))
 
+
+
 # ---------------------------------------------------------------------------
-# TaskItem widget: a rectangle showing Name, Artist, Due Date, Status
+# TaskItem widget: a rectangle displaying information about a TaskItem
 # ---------------------------------------------------------------------------
 
 class TaskItemWidget(QFrame):
@@ -124,7 +180,7 @@ class TaskItemWidget(QFrame):
     def _build_ui(self):
         self.setObjectName("TaskCard")
         self.setFrameShape(QFrame.StyledPanel)
-        self.setFixedHeight(100)
+        self.setFixedHeight(250 if self.task.notes else 100)
         self.setCursor(Qt.PointingHandCursor)
 
         accent = STATUS_COLORS.get(self.task.status, "#9e9e9e")
@@ -163,15 +219,19 @@ class TaskItemWidget(QFrame):
 
         name_label = QLabel(self.task.name)
         name_label.setProperty("role", "name")
+        name_label.setTextFormat(Qt.PlainText)
 
         artist_label = QLabel(f"Artist: {self.task.artist}")
         artist_label.setProperty("role", "sub")
+        artist_label.setTextFormat(Qt.PlainText)
 
         due_label = QLabel(f"Due: {self.task.due_date.isoformat()}")
         due_label.setProperty("role", "sub")
+        due_label.setTextFormat(Qt.PlainText)
 
         status_label = QLabel(self.task.status)
         status_label.setProperty("role", "status")
+        status_label.setTextFormat(Qt.PlainText)
         status_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
         priority_box = QWidget()
@@ -190,8 +250,26 @@ class TaskItemWidget(QFrame):
         gLayout.setColumnStretch(0, 3)
         gLayout.setColumnStretch(1, 1)
 
+        if self.task.notes:
+            notes_label = QLabel(self._display_notes(self.task.notes))
+            notes_label.setProperty("role", "notes")
+            # Explicit PlainText format: never interpret notes as HTML/rich
+            # text, even though the content is already sanitized on save.
+            notes_label.setTextFormat(Qt.PlainText)
+            notes_label.setWordWrap(True)
+            gLayout.addWidget(notes_label, 2, 0, 1, 2)
+
         mainLayout.addLayout(gLayout)
         mainLayout.addWidget(priority_box)
+
+    @staticmethod
+    def _display_notes(notes: str, max_chars: int = 120) -> str:
+        # Collapse to a single line and truncate for the compact card view;
+        # the full text is still editable/visible in the Edit Task dialog.
+        single_line = " ".join(notes.split())
+        if len(single_line) > max_chars:
+            return single_line[:max_chars].rstrip() + "…"
+        return single_line
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton and self.on_edit:
@@ -202,11 +280,11 @@ class TaskItemWidget(QFrame):
 # Edit dialog: change a task's Status and add Notes
 # ---------------------------------------------------------------------------
 
-class EditStatusDialog(QDialog):
+class EditTaskDialog(QDialog):
     def __init__(self, task: TaskItem, parent=None):
         super().__init__(parent)
         self.task = task
-        self.setWindowTitle(f"Edit Task — {task.name}")
+        self.setWindowTitle(f"Edit Task")
         self.setMinimumWidth(750)
 
         accent = STATUS_COLORS.get(self.task.status, "#9e9e9e")
@@ -214,7 +292,7 @@ class EditStatusDialog(QDialog):
             QDialog {{ background-color: #2b2b2b; }}
             QLabel {{ color: #f0f0f0; }}
             QPushButton {{ background-color: #3a3a3a; color: #f0f0f0; }}
-            QComboBox {{ background-color: #3a3a3a; color: #f0f0f0;
+            QComboBox, QTextEdit {{ background-color: #3a3a3a; color: #f0f0f0;
                         padding: 4px 8px; border-radius: 4px; }}
             QComboBox QAbstractItemView {{ background-color: #3a3a3a; color: #f0f0f0; }}
         """)
@@ -236,8 +314,17 @@ class EditStatusDialog(QDialog):
             model.appendRow(item)
 
         self.status_combo.setCurrentText(task.status)
-
         layout.addWidget(self.status_combo)
+
+        layout.addWidget(QLabel("Notes:"))
+        self.notes_edit = QTextEdit()
+        self.notes_edit.setPlainText(task.notes)
+        self.notes_edit.setFixedHeight(100)
+        layout.addWidget(self.notes_edit)
+
+        char_hint = QLabel(f"Max {MAX_NOTES_LENGTH} characters; extra will be trimmed on save.")
+        char_hint.setStyleSheet("color: #808080; font-size: 8pt;")
+        layout.addWidget(char_hint)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(self.accept)
@@ -246,6 +333,13 @@ class EditStatusDialog(QDialog):
 
     def selected_status(self):
         return self.status_combo.currentText()
+
+    def sanitized_notes(self):
+        # Claude says:
+        # setPlainText/toPlainText never interprets the text as HTML, and
+        # sanitize_notes() strips control characters and caps length before
+        # anything is persisted or redisplayed.
+        return sanitize_notes(self.notes_edit.toPlainText())
 
 # ---------------------------------------------------------------------------
 # Main window
@@ -287,6 +381,10 @@ class MainWindow(QMainWindow):
         controls_layout.addWidget(self.sort_combo)
         controls_layout.addStretch()
         outer_layout.addLayout(controls_layout)
+
+        hint = QLabel("Click a task to edit its status or notes.")
+        hint.setStyleSheet("color: #808080; font-size: 8pt;")
+        outer_layout.addWidget(hint)
 
         # --- Scrollable task list ---
         self.list_container = QWidget()
@@ -335,11 +433,14 @@ class MainWindow(QMainWindow):
             self.list_layout.insertWidget(self.list_layout.count() - 1, card)
 
     def open_edit_dialog(self, task: TaskItem):
-        dialog = EditStatusDialog(task, parent=self)
+        dialog = EditTaskDialog(task, parent=self)
         if dialog.exec_() == QDialog.Accepted:
             new_status = dialog.selected_status()
-            if new_status != task.status:
+            new_notes = dialog.sanitized_notes()
+            changed = new_status != task.status or new_notes != task.notes
+            if changed:
                 task.status = new_status
+                task.notes = new_notes
                 try:
                     save_tasks(self.tasks)
                 except OSError as e:
