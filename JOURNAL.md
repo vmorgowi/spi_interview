@@ -58,10 +58,10 @@ I want to adjust the styling on the edit dialog since the OK/Cancel buttons are 
 Finally managed to change the individual colors in the drop down of the combo box. But the color of the non-drop down part doesn't update afterwards. Ah well. I feel like I learned something while doing this, at least.
 
 And with that, ready for the second check in. What major pieces remain?
->Limiting the display to only show tasks belonging to a specific artist
->Adding the Project and Shot fields
->Adding a Notes field
->Adding a way for the artist to edit Notes
+* Limiting the display to only show tasks belonging to a specific artist
+* Adding the Project and Shot fields
+* Adding a Notes field
+* Adding a way for the artist to edit Notes
 
 The Project and Shot fields will be straightforward to add. I'll do that manually myself. For limiting the display, let's see if Claude can successfully add a search/filter bar.
 
