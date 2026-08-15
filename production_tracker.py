@@ -43,9 +43,8 @@ from PyQt5.QtWidgets import (
 # ---------------------------------------------------------------------------
 # Data model
 # ---------------------------------------------------------------------------
-STATUSES = ["Ready", "In Progress", "Review", "Complete"]
-MAX_NOTES_LENGTH = 500
 TASKS_FILE = Path(__file__).with_name("tasks.json")
+SETTINGS_FILE = Path(__file__).with_name("settings.json")
 
 # Color used for the left accent bar / border, keyed by status
 STATUS_COLORS = {
@@ -54,6 +53,10 @@ STATUS_COLORS = {
     "Review": "#2776f5", # blue
     "Complete": "#4caf50", # green
 }
+
+STATUSES = ["Ready", "In Progress", "Review", "Complete"]
+DEFAULT_SETTINGS = {"sort": "Due Date", "artist_filter": "All Artists"}
+MAX_NOTES_LENGTH = 500
 
 def sanitize_notes(raw: str) -> str:
     """Clean up freeform notes text before it's persisted or displayed.
@@ -163,7 +166,22 @@ def load_tasks():
 def save_tasks(tasks):
     TASKS_FILE.write_text(json.dumps([t.to_dict() for t in tasks], indent=2))
 
+def load_settings():
+    """Load persisted UI state (current sort mode + artist filter).
+    Falls back to defaults if the file is missing or invalid."""
+    if SETTINGS_FILE.exists():
+        try:
+            raw = json.loads(SETTINGS_FILE.read_text())
+            return {
+                "sort": raw.get("sort", DEFAULT_SETTINGS["sort"]),
+                "artist_filter": raw.get("artist_filter", DEFAULT_SETTINGS["artist_filter"]),
+            }
+        except json.JSONDecodeError:
+            pass
+    return dict(DEFAULT_SETTINGS)
 
+def save_settings(sort: str, artist_filter: str):
+    SETTINGS_FILE.write_text(json.dumps({"sort": sort, "artist_filter": artist_filter}, indent=2))
 
 # ---------------------------------------------------------------------------
 # TaskItem widget: a rectangle displaying information about a TaskItem
@@ -357,14 +375,44 @@ class MainWindow(QMainWindow):
 
         self.tasks = load_tasks()
 
+        settings = load_settings()
+        self.current_sort = settings["sort"] if settings["sort"] in ("Due Date", "Status", "Priority") else "Due Date"
+        self.current_artist_filter = settings["artist_filter"]
+
         central = QWidget()
         self.setCentralWidget(central)
         outer_layout = QVBoxLayout(central)
         outer_layout.setContentsMargins(16, 16, 16, 16)
         outer_layout.setSpacing(12)
 
-        # --- Sort controls ---
         controls_layout = QHBoxLayout()
+
+        # --- Artist Filter controls ---
+        filter_label = QLabel("Artist:")
+        filter_label.setStyleSheet("color: #f0f0f0; font-weight: 600;")
+
+        self.artist_filter_combo = QComboBox()
+        artist_options = self._artist_filter_options()
+        self.artist_filter_combo.addItems(artist_options)
+        self.artist_filter_combo.setStyleSheet("""
+            QComboBox { background-color: #2b2b2b; color: #f0f0f0;
+                        padding: 4px 8px; border-radius: 4px; }
+            QComboBox QAbstractItemView { background-color: #2b2b2b; color: #f0f0f0; }
+        """)
+        # If the saved filter refers to an artist no longer in the task
+        # list, fall back to "All Artists" instead of a blank/invalid combo.
+        if self.current_artist_filter not in artist_options:
+            self.current_artist_filter = "All Artists"
+        self.artist_filter_combo.blockSignals(True)
+        self.artist_filter_combo.setCurrentText(self.current_artist_filter)
+        self.artist_filter_combo.blockSignals(False)
+        self.artist_filter_combo.currentTextChanged.connect(self.on_artist_filter_changed)
+
+        controls_layout.addWidget(filter_label)
+        controls_layout.addWidget(self.artist_filter_combo)
+        controls_layout.addSpacing(16)
+
+        # --- Sort controls ---
         sort_label = QLabel("Sort by:")
         sort_label.setStyleSheet("color: #f0f0f0; font-weight: 600;")
 
@@ -375,6 +423,9 @@ class MainWindow(QMainWindow):
                         padding: 4px 8px; border-radius: 4px; }
             QComboBox QAbstractItemView { background-color: #2b2b2b; color: #f0f0f0; }
         """)
+        self.sort_combo.blockSignals(True)
+        self.sort_combo.setCurrentText(self.current_sort)
+        self.sort_combo.blockSignals(False)
         self.sort_combo.currentTextChanged.connect(self.on_sort_changed)
 
         controls_layout.addWidget(sort_label)
@@ -382,7 +433,7 @@ class MainWindow(QMainWindow):
         controls_layout.addStretch()
         outer_layout.addLayout(controls_layout)
 
-        hint = QLabel("Click a task to edit its status or notes.")
+        hint = QLabel("Click a task to edit its status or notes. Use the Artist filter to narrow the list.")
         hint.setStyleSheet("color: #808080; font-size: 8pt;")
         outer_layout.addWidget(hint)
 
@@ -400,25 +451,43 @@ class MainWindow(QMainWindow):
 
         self.render_tasks()
 
+    def _artist_filter_options(self):
+        artists = sorted({t.artist for t in self.tasks})
+        return ["All Artists"] + artists
+
+    def on_artist_filter_changed(self, artist: str):
+        self.current_artist_filter = artist
+        save_settings(self.current_sort, self.current_artist_filter)
+        self.render_tasks()
+
     def on_sort_changed(self, mode: str):
-        sorted_tasks = self.tasks
-        match mode:
+        self.current_sort = mode
+        save_settings(self.current_sort, self.current_artist_filter)
+        self.render_tasks()
+
+    def sort_tasks(self, tasks: list):
+        sorted_tasks = tasks
+        match self.current_sort:
             case "Due Date":
-                sorted_tasks = sorted(self.tasks, key=lambda t: t.due_date)
+                sorted_tasks = sorted(tasks, key=lambda t: t.due_date)
             case "Status":
                 sorted_tasks = sorted(
-                    self.tasks, key=lambda t: self.STATUS_ORDER.get(t.status, 99)
+                    tasks, key=lambda t: self.STATUS_ORDER.get(t.status, 99)
                 )
             case "Priority":
                 sorted_tasks = sorted(
-                    self.tasks, key=lambda t: self.PRIORITY_ORDER.get(t.priority, 99)
+                    tasks, key=lambda t: self.PRIORITY_ORDER.get(t.priority, 99)
                 )
             case _:
                 # this is an error
                 printf("ERROR: No sort specified")
+        return sorted_tasks
 
-        self.tasks = sorted_tasks
-        self.render_tasks() # re-render after sort
+    def visible_tasks(self):
+        tasks = self.tasks
+        if self.current_artist_filter and self.current_artist_filter != "All Artists":
+            tasks = [t for t in tasks if t.artist == self.current_artist_filter]
+        return self.sort_tasks(tasks)
 
     def render_tasks(self):
         # Clear existing cards (leave the trailing stretch in place)
@@ -428,7 +497,7 @@ class MainWindow(QMainWindow):
             if widget:
                 widget.deleteLater()
 
-        for task in self.tasks:
+        for task in self.visible_tasks():
             card = TaskItemWidget(task, on_edit=self.open_edit_dialog)
             self.list_layout.insertWidget(self.list_layout.count() - 1, card)
 

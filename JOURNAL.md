@@ -84,3 +84,8 @@ Given that I started at 6pm, this should be the cut off, but I haven't yet met t
 
 The main piece remaining is being able to limit the display to just showing tasks for a specific artist. Once I have that, I feel it will be minimally functional. I'll see what I can do in the next hour, and probably call it after that.
 
+### 11:00pm Almost There
+
+Artist filter is now working, but I need better sample data to test it. Would also be nice to test more examples with missing notes.
+
+I also noticed an unfortunate bug - the drop down for artists chokes and fails to display the name of an artist with a non-ASCII character in his name. That's important to fix - it would be very disrespectful to an artist if their name could not display correctly!

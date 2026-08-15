@@ -7,7 +7,17 @@
     "due_date": "2026-08-18",
     "priority": "High",
     "status": "Review",
-    "notes": "Blocking camera moves for the opening flyover; needs approval before animation starts. Waiting on review from Devon."
+    "notes": "Blocking camera moves for the opening flyover; needs approval before animation starts."
+  },
+  {
+    "name": "Rough Lighting Pass",
+    "artist": "Maria Chen",
+    "project": "Skyfall Chronicles",
+    "shot": "SC010_010",
+    "due_date": "2026-08-28",
+    "priority": "High",
+    "status": "In Progress",
+    "notes": ""
   },
   {
     "name": "Character Rig Fix",
