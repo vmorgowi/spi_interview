@@ -38,25 +38,38 @@ class TaskItem:
     name: str
     artist: str
     due_date: date
-    status: str  # "Not Started" | "In Progress" | "Done"
+    priority: str # "Urgent" | "High" | "Medium" | "Low"
+    status: str  # "Ready" | "In Progress" | "Review" | "Complete"
 
 
 # Color used for the left accent bar / border, keyed by status
 STATUS_COLORS = {
-    "Not Started": "#9e9e9e",
-    "In Progress": "#f5a623",
-    "Done": "#4caf50",
+    "Ready": "#9e9e9e", # grey
+    "In Progress": "#f5a623", # orange
+    "Review": "#2776f5", # blue
+    "Complete": "#4caf50", # green
 }
+
+# # Color used for priority display
+# STATUS_COLORS = {
+#     "Low": "#9e9e9e", # grey
+#     "Medium": "#f5a623", # yellow
+#     "High": "#f5a623", # orange
+#     "Urgent": "#4caf50", # red
+# }
 
 
 def sample_tasks():
     return [
-        TaskItem("Album Cover Art", "J. Rivera", date(2026, 8, 20), "In Progress"),
-        TaskItem("Logo Redesign", "M. Chen", date(2026, 8, 15), "Not Started"),
-        TaskItem("Poster Series", "A. Novak", date(2026, 9, 1), "Not Started"),
-        TaskItem("Character Sheet", "T. Osei", date(2026, 8, 12), "Done"),
-        TaskItem("Storyboard Draft", "L. Fontaine", date(2026, 8, 18), "In Progress"),
-        TaskItem("Book Cover", "S. Patel", date(2026, 8, 30), "Done"),
+        TaskItem("Album Cover Art", "J. Rivera", date(2026, 8, 20), "High", "In Progress"),
+        TaskItem("Logo Redesign", "M. Chen", date(2026, 8, 15), "Medium", "Not Started"),
+        TaskItem("Poster Series", "A. Novak", date(2026, 9, 1), "Low", "Not Started"),
+        TaskItem("Character Sheet", "T. Osei", date(2026, 8, 12), "Urgent", "Review"),
+        TaskItem("Storyboard Draft", "L. Fontaine", date(2026, 8, 18), "Low", "In Progress"),
+        TaskItem("Book Cover", "S. Patel", date(2026, 8, 30), "Medium", "In Progress"),
+        TaskItem("Character Sheet", "T. Osei", date(2026, 7, 12), "High", "Complete"),
+        TaskItem("Storyboard Draft", "L. Fontaine", date(2026, 7, 18), "Low", "Review"),
+        TaskItem("Book Cover", "S. Patel", date(2026, 7, 30), "Urgent", "Complete"),
     ]
 
 
@@ -73,7 +86,7 @@ class TaskItemWidget(QFrame):
     def _build_ui(self):
         self.setObjectName("TaskCard")
         self.setFrameShape(QFrame.StyledPanel)
-        self.setFixedHeight(80)
+        self.setFixedHeight(100)
 
         accent = STATUS_COLORS.get(self.task.status, "#9e9e9e")
         self.setStyleSheet(f"""
@@ -100,8 +113,11 @@ class TaskItemWidget(QFrame):
             }}
         """)
 
-        layout = QGridLayout(self)
-        layout.setContentsMargins(16, 8, 16, 8)
+        mainLayout = QHBoxLayout(self)
+        mainLayout.setContentsMargins(0, 0, 0, 0)
+
+        gLayout = QGridLayout()
+        gLayout.setContentsMargins(16, 8, 16, 8)
 
         name_label = QLabel(self.task.name)
         name_label.setProperty("role", "name")
@@ -116,12 +132,24 @@ class TaskItemWidget(QFrame):
         status_label.setProperty("role", "status")
         status_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
-        layout.addWidget(name_label, 0, 0)
-        layout.addWidget(artist_label, 1, 0)
-        layout.addWidget(due_label, 1, 1)
-        layout.addWidget(status_label, 0, 1)
-        layout.setColumnStretch(0, 3)
-        layout.setColumnStretch(1, 1)
+        priority_box = QWidget()
+        priority_box_layout = QVBoxLayout()
+        priority_box.setLayout(priority_box_layout)
+        priority_box.setFixedWidth(120)
+
+        priority_label = QLabel(self.task.priority)
+        priority_label.setProperty("role", "sub")
+        priority_box_layout.addWidget(priority_label)
+
+        gLayout.addWidget(name_label, 0, 0)
+        gLayout.addWidget(artist_label, 1, 0)
+        gLayout.addWidget(due_label, 1, 1)
+        gLayout.addWidget(status_label, 0, 1)
+        gLayout.setColumnStretch(0, 3)
+        gLayout.setColumnStretch(1, 1)
+
+        mainLayout.addLayout(gLayout)
+        mainLayout.addWidget(priority_box)
 
 
 # ---------------------------------------------------------------------------
@@ -129,12 +157,13 @@ class TaskItemWidget(QFrame):
 # ---------------------------------------------------------------------------
 
 class MainWindow(QMainWindow):
-    STATUS_ORDER = {"Not Started": 0, "In Progress": 1, "Done": 2}
+    STATUS_ORDER = {"Ready": 0, "In Progress": 1, "Review": 2, "Complete": 2}
+    PRIORITY_ORDER = {"Urgent": 0, "High": 1, "Medium": 2, "Low": 2}
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Task List")
-        self.resize(520, 600)
+        self.setWindowTitle("Production Tracker")
+        self.resize(1200, 1200)
         self.setStyleSheet("background-color: #1e1e1e;")
 
         self.tasks = sample_tasks()
@@ -151,7 +180,7 @@ class MainWindow(QMainWindow):
         sort_label.setStyleSheet("color: #f0f0f0; font-weight: 600;")
 
         self.sort_combo = QComboBox()
-        self.sort_combo.addItems(["Due Date", "Status"])
+        self.sort_combo.addItems(["Due Date", "Status", "Priority"])
         self.sort_combo.setStyleSheet("""
             QComboBox { background-color: #2b2b2b; color: #f0f0f0;
                         padding: 4px 8px; border-radius: 4px; }
@@ -179,12 +208,22 @@ class MainWindow(QMainWindow):
         self.render_tasks(self.tasks)
 
     def on_sort_changed(self, mode: str):
-        if mode == "Due Date":
-            sorted_tasks = sorted(self.tasks, key=lambda t: t.due_date)
-        else:  # "Status"
-            sorted_tasks = sorted(
-                self.tasks, key=lambda t: self.STATUS_ORDER.get(t.status, 99)
-            )
+
+        match mode:
+            case "Due Date":
+                sorted_tasks = sorted(self.tasks, key=lambda t: t.due_date)
+            case "Status":
+                sorted_tasks = sorted(
+                    self.tasks, key=lambda t: self.STATUS_ORDER.get(t.status, 99)
+                )
+            case "Priority":
+                sorted_tasks = sorted(
+                    self.tasks, key=lambda t: self.PRIORITY_ORDER.get(t.priority, 99)
+                )
+            case _:
+                # this is an error
+                printf("ERROR: No sort specified")
+
         self.render_tasks(sorted_tasks)
 
     def render_tasks(self, tasks):
