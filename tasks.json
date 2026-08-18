@@ -5,9 +5,9 @@
     "project": "Skyfall Chronicles",
     "shot": "SC010_010",
     "due_date": "2026-08-18",
-    "priority": "High",
+    "priority": "Urgent",
     "status": "In Progress",
-    "notes": "Blocking camera moves for the opening flyover; needs approval before animation starts."
+    "notes": "Blocking camera moves for the opening flyover."
   },
   {
     "name": "Character Rig Fix",
@@ -26,7 +26,7 @@
     "shot": "SC022_005",
     "due_date": "2026-08-20",
     "priority": "Medium",
-    "status": "Review",
+    "status": "In Progress",
     "notes": "Client requested warmer color temperature — más cálido para la puesta de sol 🌅"
   },
   {
@@ -66,7 +66,7 @@
     "shot": "SC012_008",
     "due_date": "2026-08-19",
     "priority": "Medium",
-    "status": "In Progress",
+    "status": "Complete",
     "notes": ""
   },
   {

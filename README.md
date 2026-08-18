@@ -55,5 +55,6 @@ In order of priority:
 * 1 hour for environment setup
 * 5 hours for coding
 * 2 hours to write README & AI_Account
+* 30 minutes to set up and record demo video
 
 
